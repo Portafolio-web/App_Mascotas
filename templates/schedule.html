@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+
+{% block title %}Horarios · PetFeeder{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div class="eyebrow">Programación</div>
+  <h1>Horarios</h1>
+</div>
+
+<section class="section first">
+  <div class="section-head">
+    <h2>Comidas</h2>
+    <span class="pill">{{ meals|length }} horarios</span>
+  </div>
+  {% if meals %}
+    <div class="list">
+      {% for meal in meals %}
+        <div class="row">
+          <span class="row-time">{{ meal['time']|hora }}</span>
+          <div class="row-main">
+            <strong>{{ meal['label'] }}</strong>
+            <span>{{ meal['grams'] }} g por porción</span>
+          </div>
+          <form method="post" action="{{ url_for('toggle_meal', meal_id=meal['id']) }}">
+            <label class="sw" title="Activar o pausar">
+              <input type="checkbox"{% if meal['enabled'] %} checked{% endif %} onchange="this.form.submit()" aria-label="Activar {{ meal['label'] }}">
+              <span class="track"></span>
+            </label>
+          </form>
+          <a class="iconbtn small" href="{{ url_for('edit_meal', meal_id=meal['id']) }}" aria-label="Editar">{{ icon('edit', 'icon-sm') }}</a>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty">Sin comidas programadas. Añade la primera abajo.</div>
+  {% endif %}
+
+  <form method="post" action="{{ url_for('add_meal') }}" class="card form-stack add-form">
+    <div class="form-title">{{ icon('plus', 'icon-sm') }} Nueva comida</div>
+    <div class="grid2">
+      <div class="field">
+        <label for="meal_time">Hora</label>
+        <input class="input" id="meal_time" name="time" type="time" value="08:00" required>
+      </div>
+      <div class="field">
+        <label for="meal_grams">Porción (g)</label>
+        <input class="input" id="meal_grams" name="grams" type="number" min="1" max="2000" value="{{ guide['per_meal'] }}" required>
+      </div>
+    </div>
+    <div class="field">
+      <label for="meal_label">Etiqueta</label>
+      <input class="input" id="meal_label" name="label" maxlength="40" placeholder="Desayuno">
+    </div>
+    <button class="btn block" type="submit">Añadir comida</button>
+  </form>
+</section>
+
+<section class="section">
+  <div class="section-head">
+    <h2>Agua</h2>
+    <span class="pill">{{ water|length }} tomas</span>
+  </div>
+  {% if water %}
+    <div class="list">
+      {% for item in water %}
+        <div class="row">
+          <span class="row-time">{{ item['time']|hora }}</span>
+          <div class="row-main">
+            <strong>{{ item['label'] }}</strong>
+            <span>Recordatorio diario</span>
+          </div>
+          <form method="post" action="{{ url_for('toggle_water', water_id=item['id']) }}">
+            <label class="sw" title="Activar o pausar">
+              <input type="checkbox"{% if item['enabled'] %} checked{% endif %} onchange="this.form.submit()" aria-label="Activar {{ item['label'] }}">
+              <span class="track"></span>
+            </label>
+          </form>
+          <a class="iconbtn small" href="{{ url_for('edit_water', water_id=item['id']) }}" aria-label="Editar">{{ icon('edit', 'icon-sm') }}</a>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty">Sin tomas de agua. Añade una abajo.</div>
+  {% endif %}
+
+  <form method="post" action="{{ url_for('add_water') }}" class="card form-stack add-form">
+    <div class="form-title">{{ icon('plus', 'icon-sm') }} Nueva toma de agua</div>
+    <div class="grid2">
+      <div class="field">
+        <label for="water_time">Hora</label>
+        <input class="input" id="water_time" name="time" type="time" value="12:00" required>
+      </div>
+      <div class="field">
+        <label for="water_label">Etiqueta</label>
+        <input class="input" id="water_label" name="label" maxlength="40" placeholder="Agua fresca">
+      </div>
+    </div>
+    <button class="btn block" type="submit">Añadir agua</button>
+  </form>
+</section>
+
+<section class="section">
+  <div class="card plan-card">
+    <div class="form-title">{{ icon('scale', 'icon-sm') }} Plan sugerido</div>
+    <p class="small muted">Calcula gramajes según el peso y la actividad, y regenera los horarios automáticamente.</p>
+    <a class="btn block" href="{{ url_for('guide_page') }}">Ir a la guía</a>
+  </div>
+</section>
+{% endblock %}

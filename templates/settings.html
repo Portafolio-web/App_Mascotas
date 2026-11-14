@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+
+{% block title %}Ajustes · PetFeeder{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div class="eyebrow">Perfil</div>
+  <h1>Ajustes</h1>
+</div>
+
+<div class="card">
+  <form method="post" action="{{ url_for('update_settings') }}" class="form-stack">
+    <div class="field">
+      <label for="user_name">Tu nombre</label>
+      <input class="input" id="user_name" name="user_name" maxlength="40" required value="{{ user['name'] }}">
+    </div>
+    <div class="field">
+      <label for="pet_name">Nombre de la mascota</label>
+      <input class="input" id="pet_name" name="pet_name" maxlength="40" required value="{{ pet['name'] }}">
+    </div>
+    <div class="field">
+      <label>Tipo de mascota</label>
+      <div class="segmented">
+        <label class="seg">
+          <input type="radio" name="species" value="perro"{% if pet['species'] == 'perro' %} checked{% endif %}>
+          <span class="seg-card">{{ icon('paw') }} Perro</span>
+        </label>
+        <label class="seg">
+          <input type="radio" name="species" value="gato"{% if pet['species'] == 'gato' %} checked{% endif %}>
+          <span class="seg-card">{{ icon('cat') }} Gato</span>
+        </label>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="field">
+        <label for="weight_kg">Peso (kg)</label>
+        <input class="input" id="weight_kg" name="weight_kg" type="number" step="0.1" min="0.5" max="120" required value="{{ pet['weight_kg'] }}">
+      </div>
+      <div class="field">
+        <label for="stage">Etapa</label>
+        <select class="input" id="stage" name="stage">
+          {% for key, label in stages.items() %}
+            <option value="{{ key }}"{% if key == pet['stage'] %} selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label for="activity">Actividad</label>
+      <select class="input" id="activity" name="activity">
+        {% for key, label in activities.items() %}
+          <option value="{{ key }}"{% if key == pet['activity'] %} selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button class="btn block" type="submit">{{ icon('check') }} Guardar cambios</button>
+  </form>
+</div>
+
+<section class="section">
+  <div class="section-head"><h2>Comedero</h2></div>
+  <div class="card">
+    <p class="small muted">Conecta o desconecta el comedero desde el panel de inicio. Los gramajes se ajustan en la guía.</p>
+    <div class="inline-actions">
+      <a class="btn subtle small" href="{{ url_for('index') }}">Ir al inicio</a>
+      <a class="btn subtle small" href="{{ url_for('guide_page') }}">Abrir guía</a>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="card danger-zone">
+    <div class="form-title">Zona de riesgo</div>
+    <p class="small muted">Borra el perfil, los horarios, los registros y la membresía de este dispositivo.</p>
+    <form method="post" action="{{ url_for('reset_data') }}" data-confirm="¿Borrar todos los datos? Esta acción no se puede deshacer.">
+      <button class="btn danger block" type="submit">{{ icon('trash') }} Borrar todos los datos</button>
+    </form>
+  </div>
+</section>
+
+<p class="note">PetFeeder · demo local con Flask y SQLite. Tus datos se guardan en el servidor.</p>
+{% endblock %}

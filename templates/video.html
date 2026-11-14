@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+
+{% block title %}{{ video['title'] }} · PetFeeder{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <a class="textbtn back" href="{{ url_for('premium') }}">← Volver a Premium</a>
+  <h1>{{ video['title'] }}</h1>
+  <div class="eyebrow">Mi biblioteca</div>
+</div>
+
+<div class="video-frame">
+  {% if embed['kind'] == 'iframe' %}
+    <iframe src="{{ embed['src'] }}" title="{{ video['title'] }}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  {% else %}
+    <video src="{{ embed['src'] }}" controls playsinline></video>
+  {% endif %}
+</div>
+
+<p class="note break">{{ video['url'] }}</p>
+
+<form method="post" action="{{ url_for('delete_video', video_id=video['id']) }}" data-confirm="¿Eliminar este video?">
+  <button class="btn danger block" type="submit">{{ icon('trash') }} Eliminar video</button>
+</form>
+{% endblock %}

@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+
+{% block title %}Inicio · PetFeeder{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div class="eyebrow">{{ now|fecha }}</div>
+  <h1>Hola, {{ user['name'].split(' ')[0] }}</h1>
+</div>
+
+{% if nxt %}
+  <section class="hero">
+    <div class="hero-top">
+      <span class="eyebrow">Próxima comida</span>
+      {% if device['connected'] %}
+        <span class="pill pill-hero"><i class="dot"></i> Comedero conectado</span>
+      {% else %}
+        <span class="pill pill-hero"><i class="dot"></i> Sin conectar</span>
+      {% endif %}
+    </div>
+    <div class="hero-count">
+      <div class="big" data-countdown="{{ nxt['target'].isoformat() }}">--:--:--</div>
+      <div class="hero-sub">
+        {{ 'Mañana' if nxt['tomorrow'] else 'Hoy' }} a las {{ nxt['meal']['time']|hora }}
+        · {{ nxt['meal']['grams'] }} g · {{ nxt['meal']['label'] }}
+      </div>
+    </div>
+    <div class="hero-actions">
+      {% if device['connected'] %}
+        <form method="post" action="{{ url_for('dispense') }}">
+          <button class="btn" type="submit">{{ icon('bowl') }} Dispensar porción</button>
+        </form>
+      {% else %}
+        <form method="post" action="{{ url_for('connect_device') }}">
+          <button class="btn" type="submit">{{ icon('link') }} Conectar comedero</button>
+        </form>
+      {% endif %}
+      <a class="btn ghost" href="{{ url_for('schedule') }}">Ver horarios</a>
+    </div>
+  </section>
+{% else %}
+  <section class="hero">
+    <div class="hero-top">
+      <span class="eyebrow">Próxima comida</span>
+      <span class="pill pill-hero"><i class="dot"></i> Sin horarios</span>
+    </div>
+    <div class="hero-count">
+      <div class="hero-title">Sin comidas programadas</div>
+      <div class="hero-sub">Añade tu primer horario para empezar a dispensar.</div>
+    </div>
+    <div class="hero-actions">
+      <a class="btn" href="{{ url_for('schedule') }}">{{ icon('plus') }} Crear horario</a>
+    </div>
+  </section>
+{% endif %}
+
+<div class="grid3">
+  <div class="stat">
+    <div class="val">{{ meal_logs|length }}/{{ enabled_meals }}</div>
+    <div class="lbl">Comidas hoy</div>
+  </div>
+  <div class="stat">
+    <div class="val">{{ grams_today }}<span class="unit">g</span></div>
+    <div class="lbl">de {{ goal }} g</div>
+  </div>
+  <div class="stat">
+    <div class="val">{{ water_logs|length }}/{{ enabled_water }}</div>
+    <div class="lbl">Tomas de agua</div>
+  </div>
+</div>
+
+<section class="section">
+  <div class="section-head">
+    <h2>{{ pet['name'] }}</h2>
+    <a class="textbtn" href="{{ url_for('settings') }}">Editar</a>
+  </div>
+  <div class="card pet-card">
+    <span class="pet-avatar">{{ icon('cat') if pet['species'] == 'gato' else icon('paw') }}</span>
+    <div class="row-main">
+      <strong>{{ pet['name'] }}</strong>
+      <span class="muted small">{{ pet['species']|species }} · {{ pet['weight_kg'] }} kg · {{ pet['stage']|stage }} · {{ pet['activity']|activity }}</span>
+    </div>
+    <div class="pet-goal">
+      <div class="val">{{ guide['grams'] }} g</div>
+      <div class="lbl">guía diaria</div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head">
+    <h2>Comedero</h2>
+    {% if device['connected'] %}
+      <span class="pill ok"><i class="dot"></i> En línea</span>
+    {% else %}
+      <span class="pill"><i class="dot"></i> Fuera de línea</span>
+    {% endif %}
+  </div>
+  <div class="row">
+    <span class="icircle green">{{ icon('bowl') }}</span>
+    <div class="row-main">
+      <strong>{{ 'Sincronizado' if device['connected'] else 'Sin conectar' }}</strong>
+      <span>
+        {% if device['connected'] and device['last_sync'] %}
+          Última sincronización {{ device['last_sync']|hora }}
+        {% else %}
+          Conecta para dispensar porciones desde aquí
+        {% endif %}
+      </span>
+    </div>
+    {% if device['connected'] %}
+      <form method="post" action="{{ url_for('disconnect_device') }}">
+        <button class="btn small subtle" type="submit">Desconectar</button>
+      </form>
+    {% else %}
+      <form method="post" action="{{ url_for('connect_device') }}">
+        <button class="btn small" type="submit">Conectar</button>
+      </form>
+    {% endif %}
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head">
+    <h2>Próximas tomas de agua</h2>
+    <form method="post" action="{{ url_for('log_water') }}">
+      <button class="textbtn" type="submit">{{ icon('plus', 'icon-sm') }} Registrar</button>
+    </form>
+  </div>
+  {% set water_enabled = [] %}
+  {% for item in water %}
+    {% if item['enabled'] %}{% set _ = water_enabled.append(item) %}{% endif %}
+  {% endfor %}
+  {% if water_enabled %}
+    <div class="list">
+      {% for item in water_enabled[:3] %}
+        <div class="row">
+          <span class="row-time">{{ item['time']|hora }}</span>
+          <div class="row-main">
+            <strong>{{ item['label'] }}</strong>
+            <span>Recordatorio diario</span>
+          </div>
+          {{ icon('droplet', 'muted-icon') }}
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty">Sin horarios de agua. Añade uno en Horarios.</div>
+  {% endif %}
+</section>
+
+<section class="section">
+  <div class="section-head">
+    <h2>Registro de hoy</h2>
+    <a class="textbtn" href="{{ url_for('guide_page') }}">Guía</a>
+  </div>
+  {% if logs %}
+    <div class="card tight">
+      {% for log in logs %}
+        <div class="log">
+          {{ icon('bowl' if log['type'] == 'meal' else 'droplet') }}
+          <span>{{ log['label'] }}{% if log['grams'] %} · {{ log['grams'] }} g{% endif %}</span>
+          <time>{{ log['at']|hora }}</time>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty">Aún no hay registros hoy. Dispensa una porción desde el panel.</div>
+  {% endif %}
+</section>
+
+<p class="note">Cálculo orientativo basado en RER × factor de actividad y alimento seco de ~3.6 kcal/g. Ajusta siempre con tu veterinario.</p>
+{% endblock %}

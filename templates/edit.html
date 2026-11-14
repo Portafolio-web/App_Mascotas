@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+
+{% block title %}{{ title }} · PetFeeder{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <a class="textbtn back" href="{{ url_for('schedule') }}">← Volver a horarios</a>
+  <h1>{{ title }}</h1>
+</div>
+
+<div class="card">
+  <form method="post" action="{{ action }}" class="form-stack">
+    <div class="grid2">
+      <div class="field">
+        <label for="time">Hora</label>
+        <input class="input" id="time" name="time" type="time" value="{{ item['time'] }}" required>
+      </div>
+      {% if kind == 'meal' %}
+        <div class="field">
+          <label for="grams">Porción (g)</label>
+          <input class="input" id="grams" name="grams" type="number" min="1" max="2000" value="{{ item['grams'] }}" required>
+        </div>
+      {% endif %}
+    </div>
+    <div class="field">
+      <label for="label">Etiqueta</label>
+      <input class="input" id="label" name="label" maxlength="40" value="{{ item['label'] }}">
+    </div>
+    <button class="btn block" type="submit">{{ icon('check') }} Guardar cambios</button>
+  </form>
+</div>
+
+<div class="card danger-zone">
+  <div class="form-title">Eliminar horario</div>
+  <p class="small muted">Esta acción no se puede deshacer.</p>
+  <form method="post" action="{{ delete_action }}" data-confirm="¿Eliminar este horario?">
+    <button class="btn danger block" type="submit">{{ icon('trash') }} Eliminar</button>
+  </form>
+</div>
+{% endblock %}

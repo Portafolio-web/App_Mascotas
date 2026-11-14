@@ -1,0 +1,73 @@
+{% from "_icons.html" import icon %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f6f4ef" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#141311" media="(prefers-color-scheme: dark)">
+  <meta name="description" content="PetFeeder: conecta el comedero de tu mascota, programa comidas y agua, ajusta porciones y accede a contenido premium.">
+  <title>{% block title %}PetFeeder{% endblock %}</title>
+  <link rel="manifest" href="{{ url_for('manifest') }}">
+  <link rel="icon" href="{{ url_for('static', filename='icon-192.png') }}" type="image/png">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='icon-192.png') }}">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="PetFeeder">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="wrap">
+    <header class="topbar">
+      <a class="brand" href="{{ url_for('index') }}">
+        <img class="brand-logo" src="{{ url_for('static', filename='Logo.png') }}" alt="PetFeeder">
+      </a>
+      <div class="top-actions">
+        {% if current_user %}
+          <a class="iconbtn" href="{{ url_for('settings') }}" aria-label="Ajustes">{{ icon('settings') }}</a>
+          <a class="user-chip" href="{{ url_for('settings') }}">
+            <span class="avatar">{{ current_user['name'][:1]|upper }}</span>
+            <span>{{ current_user['name'].split(' ')[0] }}</span>
+          </a>
+        {% endif %}
+      </div>
+    </header>
+
+    <main>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="flashes">
+            {% for category, message in messages %}
+              <div class="flash flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+  {% if current_user %}
+    {% set ep = request.endpoint or '' %}
+    <nav class="nav" aria-label="Navegación principal">
+      <div class="nav-inner">
+        <a class="nav-btn{% if ep == 'index' %} active{% endif %}" href="{{ url_for('index') }}">
+          {{ icon('home') }}<span>Inicio</span>
+        </a>
+        <a class="nav-btn{% if ep in ['schedule', 'edit_meal', 'edit_water'] %} active{% endif %}" href="{{ url_for('schedule') }}">
+          {{ icon('calendar') }}<span>Horarios</span>
+        </a>
+        <a class="nav-btn{% if ep == 'guide_page' %} active{% endif %}" href="{{ url_for('guide_page') }}">
+          {{ icon('guide') }}<span>Guía</span>
+        </a>
+        <a class="nav-btn{% if ep in ['premium', 'video_detail'] %} active{% endif %}" href="{{ url_for('premium') }}">
+          {{ icon('crown') }}<span>Premium</span>
+        </a>
+      </div>
+    </nav>
+  {% endif %}
+
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</body>
+</html>

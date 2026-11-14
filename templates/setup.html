@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+
+{% block title %}Configura tu rutina · PetFeeder{% endblock %}
+
+{% block content %}
+<div class="onboard">
+  <h1>Cuida su rutina,<br>sin complicaciones.</h1>
+  <p class="lead">Conecta tu comedero, programa las comidas y ajusta las porciones perfectas para tu mascota.</p>
+
+  <form method="post" action="{{ url_for('setup') }}" class="card form-stack">
+    <div class="field">
+      <label for="user_name">Tu nombre</label>
+      <input class="input" id="user_name" name="user_name" required maxlength="40" placeholder="Ana" autocomplete="name">
+    </div>
+    <div class="field">
+      <label for="pet_name">Nombre de la mascota</label>
+      <input class="input" id="pet_name" name="pet_name" required maxlength="40" placeholder="Luna">
+    </div>
+    <div class="field">
+      <label>Tipo de mascota</label>
+      <div class="segmented">
+        <label class="seg">
+          <input type="radio" name="species" value="perro" checked>
+          <span class="seg-card">{{ icon('paw') }} Perro</span>
+        </label>
+        <label class="seg">
+          <input type="radio" name="species" value="gato">
+          <span class="seg-card">{{ icon('cat') }} Gato</span>
+        </label>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="field">
+        <label for="weight_kg">Peso (kg)</label>
+        <input class="input" id="weight_kg" name="weight_kg" type="number" step="0.1" min="0.5" max="120" value="8" required>
+      </div>
+      <div class="field">
+        <label for="stage">Etapa</label>
+        <select class="input" id="stage" name="stage">
+          {% for key, label in stages.items() %}
+            <option value="{{ key }}"{% if key == 'adulto' %} selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="field">
+        <label for="activity">Actividad</label>
+        <select class="input" id="activity" name="activity">
+          {% for key, label in activities.items() %}
+            <option value="{{ key }}"{% if key == 'normal' %} selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="field">
+        <label for="meals_per_day">Comidas/día</label>
+        <select class="input" id="meals_per_day" name="meals_per_day">
+          {% for n in [1, 2, 3, 4] %}
+            <option value="{{ n }}"{% if n == 3 %} selected{% endif %}>{{ n }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <button class="btn block" type="submit">{{ icon('paw') }} Crear mi rutina</button>
+  </form>
+
+  <p class="note center">Podrás ajustar todo más tarde en Ajustes. Tus datos se guardan en este servidor.</p>
+</div>
+{% endblock %}

@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+
+{% block title %}Premium · PetFeeder{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div class="eyebrow">Membresía</div>
+  <h1>Premium</h1>
+</div>
+
+{% if not premium %}
+  <section class="premium-hero first">
+    <div class="premium-brand">{{ icon('crown') }} <span>PetFeeder Premium</span></div>
+    <h2>Todo para cuidar mejor de tu mascota</h2>
+    <div class="price"><b>$4,99</b><span>/ mes · cancela cuando quieras</span></div>
+    <div class="benefits">
+      <div class="benefit">{{ icon('check') }}<span>Asesoramiento personalizado</span></div>
+      <div class="benefit">{{ icon('check') }}<span>Videos y tutoriales exclusivos</span></div>
+      <div class="benefit">{{ icon('check') }}<span>Guía de peso avanzada</span></div>
+      <div class="benefit">{{ icon('check') }}<span>Mi biblioteca de videos</span></div>
+      <div class="benefit">{{ icon('check') }}<span>Sincronización prioritaria</span></div>
+    </div>
+    <form method="post" action="{{ url_for('activate_premium') }}">
+      <button class="btn block" type="submit">{{ icon('crown') }} Activar membresía (demo)</button>
+    </form>
+    <p class="premium-note">Pago simulado. No se realizará ningún cargo.</p>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><h2>Asesoramiento personalizado</h2></div>
+    <div class="card locked">
+      <div class="lock-line">{{ icon('crown') }} Disponible con Premium</div>
+      <p class="small muted">Recibe un plan de alimentación ajustado a la edad, peso y actividad de tu mascota.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><h2>Videos y tutoriales</h2></div>
+    <div class="tut-grid">
+      {% for tutorial in tutorials %}
+        <div class="tut locked">
+          <span class="play">{{ icon('play') }}</span>
+          <strong>{{ tutorial['title'] }}</strong>
+          <span>{{ tutorial['duration'] }} · Premium</span>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+{% else %}
+  <section class="card status-card first">
+    <span class="status-icon">{{ icon('crown') }}</span>
+    <div class="row-main">
+      <strong>Membresía activa</strong>
+      <span class="small muted">Plan mensual · $4,99{% if membership and membership['since'] %} · desde {{ membership['since']|fecha }}{% endif %} (demo)</span>
+    </div>
+    <form method="post" action="{{ url_for('cancel_premium') }}" data-confirm="¿Cancelar la membresía premium?">
+      <button class="btn small ghost" type="submit">Cancelar</button>
+    </form>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><h2>Asesoramiento personalizado</h2></div>
+    <form method="post" action="{{ url_for('add_advice') }}" class="card form-stack">
+      <div class="field">
+        <label for="advice">Cuéntanos qué necesitas</label>
+        <textarea class="input" id="advice" name="text" maxlength="1000" required placeholder="Ej: mi mascota ha subido de peso y quiero ajustar las porciones..."></textarea>
+      </div>
+      <button class="btn block" type="submit">{{ icon('spark') }} Enviar solicitud</button>
+    </form>
+    {% if advice %}
+      <div class="list spaced">
+        {% for item in advice %}
+          <div class="row">
+            <div class="row-main">
+              <strong>{{ item['text'] }}</strong>
+              <span>{{ item['created_at']|fecha }}</span>
+            </div>
+            <span class="pill gold">{{ item['status'] }}</span>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </section>
+
+  <section class="section">
+    <div class="section-head"><h2>Videos y tutoriales</h2><span class="pill gold">Premium</span></div>
+    <div class="tut-list">
+      {% for tutorial in tutorials %}
+        <details class="tut">
+          <summary>
+            <span class="play">{{ icon('play') }}</span>
+            <span class="tut-summary">
+              <strong>{{ tutorial['title'] }}</strong>
+              <span>{{ tutorial['duration'] }} · {{ tutorial['level'] }}</span>
+            </span>
+          </summary>
+          <div class="tut-body">
+            <p class="small muted">{{ tutorial['desc'] }}</p>
+            <ol class="steps">
+              {% for step in tutorial['steps'] %}
+                <li>{{ step }}</li>
+              {% endfor %}
+            </ol>
+            <p class="note">Añade la URL del video en Mi biblioteca para verlo también desde aquí.</p>
+          </div>
+        </details>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><h2>Mi biblioteca</h2></div>
+    <form method="post" action="{{ url_for('add_video') }}" class="card form-stack">
+      <div class="field">
+        <label for="video_title">Título</label>
+        <input class="input" id="video_title" name="title" maxlength="80" required placeholder="Rutina de paseo">
+      </div>
+      <div class="field">
+        <label for="video_url">URL del video</label>
+        <input class="input" id="video_url" name="url" maxlength="500" required placeholder="https://www.youtube.com/watch?v=...">
+      </div>
+      <button class="btn subtle block" type="submit">{{ icon('link') }} Añadir video</button>
+    </form>
+    {% if videos %}
+      <div class="list spaced">
+        {% for video in videos %}
+          <div class="row">
+            <a class="icircle" href="{{ url_for('video_detail', video_id=video['id']) }}">{{ icon('play', 'icon-sm') }}</a>
+            <a class="row-main" href="{{ url_for('video_detail', video_id=video['id']) }}">
+              <strong>{{ video['title'] }}</strong>
+              <span>{{ video['url'] }}</span>
+            </a>
+            <form method="post" action="{{ url_for('delete_video', video_id=video['id']) }}" data-confirm="¿Eliminar este video?">
+              <button class="iconbtn small" type="submit" aria-label="Eliminar video">{{ icon('trash', 'icon-sm') }}</button>
+            </form>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty spaced">Añade tu primer video con una URL de YouTube, Vimeo o un archivo MP4.</div>
+    {% endif %}
+  </section>
+{% endif %}
+{% endblock %}

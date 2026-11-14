@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+
+{% block title %}Guía de porciones · PetFeeder{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div class="eyebrow">Peso y porciones</div>
+  <h1>Guía</h1>
+</div>
+
+<section class="card first">
+  <form method="get" action="{{ url_for('guide_page') }}" class="form-stack">
+    <div class="form-title">{{ icon('scale', 'icon-sm') }} Calculadora de porción</div>
+    <div class="field">
+      <label>Tipo de mascota</label>
+      <div class="segmented">
+        <label class="seg">
+          <input type="radio" name="species" value="perro"{% if species == 'perro' %} checked{% endif %}>
+          <span class="seg-card">{{ icon('paw') }} Perro</span>
+        </label>
+        <label class="seg">
+          <input type="radio" name="species" value="gato"{% if species == 'gato' %} checked{% endif %}>
+          <span class="seg-card">{{ icon('cat') }} Gato</span>
+        </label>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="field">
+        <label for="weight">Peso (kg)</label>
+        <input class="input" id="weight" name="weight" type="number" step="0.1" min="0.5" max="120" value="{{ weight }}" required>
+      </div>
+      <div class="field">
+        <label for="stage">Etapa</label>
+        <select class="input" id="stage" name="stage">
+          {% for key, label in stages.items() %}
+            <option value="{{ key }}"{% if key == stage %} selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="field">
+        <label for="activity">Actividad</label>
+        <select class="input" id="activity" name="activity">
+          {% for key, label in activities.items() %}
+            <option value="{{ key }}"{% if key == activity %} selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="field">
+        <label for="meals_per_day">Comidas/día</label>
+        <select class="input" id="meals_per_day" name="meals_per_day">
+          {% for n in [1, 2, 3, 4] %}
+            <option value="{{ n }}"{% if n == meals %} selected{% endif %}>{{ n }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <button class="btn subtle block" type="submit">Calcular</button>
+  </form>
+</section>
+
+<section class="card result-card">
+  <div class="eyebrow">Recomendación diaria</div>
+  <div class="big-num">{{ result['grams'] }} <span>g / día</span></div>
+  <div class="metric-row">
+    <div class="metric"><b>{{ result['per_meal'] }} g</b><span>por comida</span></div>
+    <div class="metric"><b>{{ result['kcal'] }}</b><span>kcal / día</span></div>
+    <div class="metric"><b>{{ result['meals'] }}</b><span>comidas</span></div>
+  </div>
+  <div class="bar"><i style="width: {{ [result['per_meal'] / 2.5, 100]|min }}%"></i></div>
+  <p class="small muted bar-caption">RER {{ result['rer'] }} kcal · factor {{ result['factor'] }}</p>
+  <form method="post" action="{{ url_for('apply_plan') }}">
+    <input type="hidden" name="species" value="{{ species }}">
+    <input type="hidden" name="weight" value="{{ weight }}">
+    <input type="hidden" name="stage" value="{{ stage }}">
+    <input type="hidden" name="activity" value="{{ activity }}">
+    <input type="hidden" name="meals_per_day" value="{{ meals }}">
+    <button class="btn block" type="submit">{{ icon('check') }} Aplicar a mis horarios</button>
+  </form>
+</section>
+
+<section class="section">
+  <div class="section-head">
+    <h2>Referencia rápida</h2>
+    <span class="pill">{{ species|species }} · adulto normal</span>
+  </div>
+  <div class="card tight">
+    <table class="table">
+      <thead>
+        <tr><th>Peso</th><th>kcal/día</th><th>g/día</th></tr>
+      </thead>
+      <tbody>
+        {% for row in reference %}
+          <tr>
+            <td>{{ row['weight'] }} kg</td>
+            <td>{{ row['kcal'] }}</td>
+            <td><strong>{{ row['grams'] }} g</strong></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<p class="note">Cálculo orientativo basado en RER × factor de actividad y alimento seco de ~3.6 kcal/g. Ajusta siempre con tu veterinario.</p>
+{% endblock %}
