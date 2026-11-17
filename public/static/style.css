@@ -377,6 +377,32 @@ textarea.input{min-height:92px;resize:vertical}
 .onboard .card{margin-top:4px}
 .onboard .note{margin-top:16px}
 
+/* Guided tour */
+.tour{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:18px}
+.tour-backdrop{position:absolute;inset:0;background:rgba(20,19,17,.55);backdrop-filter:blur(3px)}
+.tour-card{
+  position:relative;width:100%;max-width:420px;padding:20px;
+  background:var(--surface);border:1px solid var(--line);border-radius:22px;
+  box-shadow:0 24px 60px -20px rgba(0,0,0,.45);
+}
+.tour-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.tour-skip{font-size:12.5px;color:var(--muted)}
+.tour-skip:hover{color:var(--ink)}
+.tour-icon{
+  width:52px;height:52px;border-radius:16px;display:grid;place-items:center;
+  background:var(--accent-soft);color:var(--accent);margin:16px 0 12px;
+}
+.tour-icon .icon{width:26px;height:26px}
+.tour-slide h2{font-size:21px;letter-spacing:-.03em;font-weight:750;line-height:1.2}
+.tour-slide p{margin-top:7px;color:var(--muted);font-size:14px;line-height:1.5}
+.tour-cta{margin-top:16px;text-decoration:none}
+.tour-foot{display:flex;align-items:center;gap:10px;margin-top:20px}
+.tour-foot .btn:disabled{opacity:.4;cursor:not-allowed}
+.tour-dots{display:flex;align-items:center;gap:6px;margin:0 auto}
+.tour-dot{width:7px;height:7px;border-radius:99px;background:var(--line);transition:.15s}
+.tour-dot.active{width:18px;background:var(--accent)}
+.tour-open{overflow:hidden}
+
 /* Nav */
 .nav{
   position:fixed;left:0;right:0;bottom:0;background:var(--bg);

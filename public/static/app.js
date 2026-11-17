@@ -100,6 +100,85 @@
     });
   });
 
+  var tour = document.getElementById("guide-tour");
+  if (tour) {
+    var slides = Array.prototype.slice.call(tour.querySelectorAll("[data-tour-slide]"));
+    var dots = Array.prototype.slice.call(tour.querySelectorAll("[data-tour-dot]"));
+    var stepLabel = tour.querySelector("[data-tour-step]");
+    var backBtn = tour.querySelector("[data-tour-back]");
+    var nextBtn = tour.querySelector("[data-tour-next]");
+    var storageKey = "petfeeder-tour-v1";
+    var current = 0;
+
+    function renderTour() {
+      slides.forEach(function (slide, i) {
+        slide.hidden = i !== current;
+      });
+      dots.forEach(function (dot, i) {
+        dot.classList.toggle("active", i === current);
+      });
+      if (stepLabel) stepLabel.textContent = "Paso " + (current + 1) + " de " + slides.length;
+      if (backBtn) backBtn.disabled = current === 0;
+      if (nextBtn) nextBtn.textContent = current === slides.length - 1 ? "Empezar" : "Siguiente";
+    }
+
+    function closeTour() {
+      tour.hidden = true;
+      document.body.classList.remove("tour-open");
+      try {
+        localStorage.setItem(storageKey, "done");
+      } catch (error) {}
+    }
+
+    function openTour() {
+      current = 0;
+      renderTour();
+      tour.hidden = false;
+      document.body.classList.add("tour-open");
+      if (nextBtn) nextBtn.focus();
+    }
+
+    tour.querySelectorAll("[data-tour-close]").forEach(function (button) {
+      button.addEventListener("click", closeTour);
+    });
+    document.querySelectorAll("[data-tour-open]").forEach(function (button) {
+      button.addEventListener("click", function (event) {
+        event.preventDefault();
+        openTour();
+      });
+    });
+    tour.querySelectorAll("[data-tour-cta]").forEach(function (link) {
+      link.addEventListener("click", closeTour);
+    });
+    if (backBtn) {
+      backBtn.addEventListener("click", function () {
+        if (current > 0) {
+          current -= 1;
+          renderTour();
+        }
+      });
+    }
+    if (nextBtn) {
+      nextBtn.addEventListener("click", function () {
+        if (current < slides.length - 1) {
+          current += 1;
+          renderTour();
+        } else {
+          closeTour();
+        }
+      });
+    }
+    document.addEventListener("keydown", function (event) {
+      if (!tour.hidden && event.key === "Escape") closeTour();
+    });
+
+    var seen = false;
+    try {
+      seen = localStorage.getItem(storageKey) === "done";
+    } catch (error) {}
+    if (!seen) window.setTimeout(openTour, 700);
+  }
+
   if ("serviceWorker" in navigator && location.protocol.indexOf("http") === 0) {
     window.addEventListener("load", function () {
       navigator.serviceWorker.register("/static/sw.js").catch(function () {});

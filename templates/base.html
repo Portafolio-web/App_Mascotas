@@ -24,6 +24,7 @@
       </a>
       <div class="top-actions">
         {% if current_user %}
+          <button class="iconbtn" type="button" data-tour-open aria-label="Guía rápida">{{ icon('guide') }}</button>
           <a class="iconbtn" href="{{ url_for('settings') }}" aria-label="Ajustes">{{ icon('settings') }}</a>
           <a class="user-chip" href="{{ url_for('settings') }}">
             <span class="avatar">{{ current_user['name'][:1]|upper }}</span>
@@ -66,6 +67,49 @@
         </a>
       </div>
     </nav>
+  {% endif %}
+
+  {% if current_user %}
+    <div class="tour" id="guide-tour" role="dialog" aria-modal="true" aria-labelledby="tour-heading" hidden>
+      <div class="tour-backdrop" data-tour-close></div>
+      <div class="tour-card">
+        <div class="tour-head">
+          <span class="eyebrow" data-tour-step>Paso 1 de 3</span>
+          <button class="tour-skip" type="button" data-tour-close>Omitir</button>
+        </div>
+
+        <section class="tour-slide" data-tour-slide>
+          <span class="tour-icon">{{ icon('guide') }}</span>
+          <h2 id="tour-heading">Calcula su ración ideal</h2>
+          <p>La guía usa el peso, la etapa y la actividad de tu mascota para recomendar gramos diarios y porciones por comida.</p>
+          <a class="btn small tour-cta" href="{{ url_for('guide_page') }}" data-tour-cta>Abrir guía →</a>
+        </section>
+
+        <section class="tour-slide" data-tour-slide hidden>
+          <span class="tour-icon">{{ icon('calendar') }}</span>
+          <h2>Programa sus horarios</h2>
+          <p>Crea comidas y tomas de agua, ajusta los gramos y activa o pausa cada horario cuando lo necesites.</p>
+          <a class="btn small tour-cta" href="{{ url_for('schedule') }}" data-tour-cta>Ir a horarios →</a>
+        </section>
+
+        <section class="tour-slide" data-tour-slide hidden>
+          <span class="tour-icon">{{ icon('crown') }}</span>
+          <h2>Conoce Premium</h2>
+          <p>Desbloquea consejos y videos exclusivos para cuidar mejor a tu mascota desde un solo lugar.</p>
+          <a class="btn small tour-cta" href="{{ url_for('premium') }}" data-tour-cta>Ver Premium →</a>
+        </section>
+
+        <div class="tour-foot">
+          <button class="btn subtle small" type="button" data-tour-back>Atrás</button>
+          <div class="tour-dots" aria-hidden="true">
+            <span class="tour-dot active" data-tour-dot></span>
+            <span class="tour-dot" data-tour-dot></span>
+            <span class="tour-dot" data-tour-dot></span>
+          </div>
+          <button class="btn small" type="button" data-tour-next>Siguiente</button>
+        </div>
+      </div>
+    </div>
   {% endif %}
 
   <script src="{{ url_for('static', filename='app.js') }}" defer></script>
