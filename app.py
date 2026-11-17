@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import re
 import sqlite3
+import tempfile
 from datetime import datetime, timedelta, timezone
 from functools import wraps
 
@@ -18,9 +19,18 @@ from flask import (
 )
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "petfeeder.db")
+IS_VERCEL = os.environ.get("VERCEL") == "1"
+DB_PATH = (
+    os.path.join(tempfile.gettempdir(), "petfeeder.db")
+    if IS_VERCEL
+    else os.path.join(BASE_DIR, "petfeeder.db")
+)
 
-app = Flask(__name__)
+app = Flask(
+    __name__,
+    static_folder=os.path.join(BASE_DIR, "public", "static"),
+    static_url_path="/static",
+)
 app.secret_key = os.environ.get("SECRET_KEY", "petfeeder-dev-secret")
 
 SCHEMA = """
