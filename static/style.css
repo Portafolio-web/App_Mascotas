@@ -7,8 +7,8 @@
   --ink:#1b1a18;
   --muted:#78746b;
   --line:#e7e3da;
-  --accent:#bd5f38;
-  --accent-soft:#f6e6de;
+  --accent:#815681;
+  --accent-soft:#efe6ef;
   --green:#4e7a5b;
   --green-soft:#e5efe7;
   --gold:#a97b22;
@@ -19,7 +19,6 @@
 }
 
 @media (prefers-color-scheme: dark){
-  .brand-logo{filter:invert(1)}
   :root{
     --bg:#141311;
     --surface:#1d1b18;
@@ -27,8 +26,8 @@
     --ink:#f2efe8;
     --muted:#a19c92;
     --line:#302d27;
-    --accent:#e0835a;
-    --accent-soft:#3a281f;
+    --accent:#c79bc2;
+    --accent-soft:#332639;
     --green:#7fb18d;
     --green-soft:#243024;
     --gold:#dcb15f;
