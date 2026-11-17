@@ -58,6 +58,18 @@
     }, 4200);
   });
 
+  document.querySelectorAll("input[type=file][name=pet_photo]").forEach(function (input) {
+    var preview = document.getElementById(input.id + "_preview");
+    if (!preview) return;
+    input.addEventListener("change", function () {
+      var file = input.files && input.files[0];
+      preview.hidden = true;
+      if (!file) return;
+      preview.src = URL.createObjectURL(file);
+      preview.hidden = false;
+    });
+  });
+
   if ("serviceWorker" in navigator && location.protocol.indexOf("http") === 0) {
     window.addEventListener("load", function () {
       navigator.serviceWorker.register("/static/sw.js").catch(function () {});

@@ -10,7 +10,7 @@
 </div>
 
 <div class="card">
-  <form method="post" action="{{ url_for('update_settings') }}" class="form-stack">
+  <form method="post" action="{{ url_for('update_settings') }}" enctype="multipart/form-data" class="form-stack">
     <div class="field">
       <label for="user_name">Tu nombre</label>
       <input class="input" id="user_name" name="user_name" maxlength="40" required value="{{ user['name'] }}">
@@ -18,6 +18,17 @@
     <div class="field">
       <label for="pet_name">Nombre de la mascota</label>
       <input class="input" id="pet_name" name="pet_name" maxlength="40" required value="{{ pet['name'] }}">
+    </div>
+    {% if pet_photo_url %}
+      <div class="photo-current">
+        <img src="{{ pet_photo_url }}" alt="Foto de {{ pet['name'] }}">
+        <small class="muted">Foto actual</small>
+      </div>
+    {% endif %}
+    <div class="field">
+      <label for="pet_photo">Cambiar foto (opcional)</label>
+      <input class="input" id="pet_photo" name="pet_photo" type="file" accept="image/jpeg,image/png,image/gif,image/webp">
+      <img class="photo-preview" id="pet_photo_preview" alt="Vista previa" hidden>
     </div>
     <div class="field">
       <label>Tipo de mascota</label>

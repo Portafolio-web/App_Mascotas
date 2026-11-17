@@ -1,4 +1,4 @@
-const CACHE = "petfeeder-static-v3";
+const CACHE = "petfeeder-static-v4";
 const ASSETS = [
   "/static/style.css",
   "/static/app.js",

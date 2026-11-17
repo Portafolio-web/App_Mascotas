@@ -8,7 +8,7 @@
   <h1>Cuida su rutina,<br>sin complicaciones.</h1>
   <p class="lead">Conecta tu comedero, programa las comidas y ajusta las porciones perfectas para tu mascota.</p>
 
-  <form method="post" action="{{ url_for('setup') }}" class="card form-stack">
+  <form method="post" action="{{ url_for('setup') }}" enctype="multipart/form-data" class="card form-stack">
     <div class="field">
       <label for="user_name">Tu nombre</label>
       <input class="input" id="user_name" name="user_name" required maxlength="40" placeholder="Ana" autocomplete="name">
@@ -16,6 +16,12 @@
     <div class="field">
       <label for="pet_name">Nombre de la mascota</label>
       <input class="input" id="pet_name" name="pet_name" required maxlength="40" placeholder="Luna">
+    </div>
+    <div class="field">
+      <label for="pet_photo">Foto de la mascota (opcional)</label>
+      <input class="input" id="pet_photo" name="pet_photo" type="file" accept="image/jpeg,image/png,image/gif,image/webp">
+      <img class="photo-preview" id="pet_photo_preview" alt="Vista previa" hidden>
+      <small class="muted">JPG, PNG, GIF o WebP · máx. 2 MB. Se guarda en el servidor mientras dure la sesión.</small>
     </div>
     <div class="field">
       <label>Tipo de mascota</label>

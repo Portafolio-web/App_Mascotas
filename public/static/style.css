@@ -156,6 +156,13 @@ button{cursor:pointer;background:none;border:0;padding:0}
   display:grid;place-items:center;flex:none;
 }
 .pet-avatar .icon{width:24px;height:24px}
+.pet-avatar img{width:100%;height:100%;object-fit:cover;border-radius:inherit}
+.photo-current{display:flex;align-items:center;gap:10px}
+.photo-current img{width:52px;height:52px;border-radius:14px;object-fit:cover}
+.photo-preview{
+  width:72px;height:72px;border-radius:16px;object-fit:cover;
+  border:1px solid var(--line);background:var(--surface-2);
+}
 .pet-goal{text-align:right}
 .pet-goal .val{font-size:18px;font-weight:750;letter-spacing:-.02em}
 .pet-goal .lbl{font-size:11px;color:var(--muted)}

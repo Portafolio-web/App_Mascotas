@@ -76,7 +76,13 @@
     <a class="textbtn" href="{{ url_for('settings') }}">Editar</a>
   </div>
   <div class="card pet-card">
-    <span class="pet-avatar">{{ icon('cat') if pet['species'] == 'gato' else icon('paw') }}</span>
+    <span class="pet-avatar">
+      {% if pet_photo_url %}
+        <img src="{{ pet_photo_url }}" alt="{{ pet['name'] }}">
+      {% else %}
+        {{ icon('cat') if pet['species'] == 'gato' else icon('paw') }}
+      {% endif %}
+    </span>
     <div class="row-main">
       <strong>{{ pet['name'] }}</strong>
       <span class="muted small">{{ pet['species']|species }} · {{ pet['weight_kg'] }} kg · {{ pet['stage']|stage }} · {{ pet['activity']|activity }}</span>

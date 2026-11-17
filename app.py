@@ -9,22 +9,29 @@ from functools import wraps
 
 from flask import (
     Flask,
+    abort,
     flash,
     g,
     redirect,
     render_template,
     request,
+    send_file,
     send_from_directory,
     url_for,
 )
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 IS_VERCEL = os.environ.get("VERCEL") == "1"
-DB_PATH = (
-    os.path.join(tempfile.gettempdir(), "petfeeder.db")
-    if IS_VERCEL
-    else os.path.join(BASE_DIR, "petfeeder.db")
-)
+UPLOAD_DIR = tempfile.gettempdir() if IS_VERCEL else BASE_DIR
+DB_PATH = os.path.join(UPLOAD_DIR, "petfeeder.db")
+PHOTO_PATH = os.path.join(UPLOAD_DIR, "petfeeder-pet-photo")
+PHOTO_TYPES = {
+    ".jpg": "image/jpeg",
+    ".png": "image/png",
+    ".gif": "image/gif",
+    ".webp": "image/webp",
+}
+MAX_PHOTO_BYTES = 2 * 1024 * 1024
 
 app = Flask(
     __name__,
@@ -224,6 +231,39 @@ def init_db() -> None:
 
 
 init_db()
+
+
+def has_pet_photo() -> bool:
+    return any(os.path.isfile(PHOTO_PATH + ext) for ext in PHOTO_TYPES)
+
+
+def save_pet_photo(upload) -> bool:
+    if upload is None or not upload.filename:
+        return False
+    data = upload.read(MAX_PHOTO_BYTES + 1)
+    if not data or len(data) > MAX_PHOTO_BYTES:
+        return False
+    if data.startswith(b"\xff\xd8\xff"):
+        ext = ".jpg"
+    elif data.startswith(b"\x89PNG\r\n\x1a\n"):
+        ext = ".png"
+    elif data.startswith((b"GIF87a", b"GIF89a")):
+        ext = ".gif"
+    elif data.startswith(b"RIFF") and data[8:12] == b"WEBP":
+        ext = ".webp"
+    else:
+        return False
+    delete_pet_photo()
+    with open(PHOTO_PATH + ext, "wb") as fh:
+        fh.write(data)
+    return True
+
+
+def delete_pet_photo() -> None:
+    for ext in PHOTO_TYPES:
+        path = PHOTO_PATH + ext
+        if os.path.isfile(path):
+            os.remove(path)
 
 
 CO_TZ = timezone(timedelta(hours=-5), "America/Bogota")
@@ -435,6 +475,7 @@ def index():
         "index.html",
         user=user,
         pet=pet,
+        pet_photo_url=url_for("pet_photo") if has_pet_photo() else None,
         meals=meals,
         water=water,
         device=device,
@@ -465,6 +506,8 @@ def setup():
             request.form.get("activity") if request.form.get("activity") in ACTIVITIES else "normal"
         )
         meals_per_day = parse_int(request.form.get("meals_per_day"), 3, 1, 4)
+        if request.files.get("pet_photo") and not save_pet_photo(request.files["pet_photo"]):
+            flash("La foto no se pudo guardar. Usa JPG, PNG, GIF o WebP de hasta 2 MB.", "error")
         guide = calc_guide(weight, stage, activity, meals_per_day, species)
         db = get_db()
         db.execute(
@@ -490,6 +533,15 @@ def setup():
         flash(f"¡Todo listo! {pet_name} ya tiene su rutina.", "success")
         return redirect(url_for("index"))
     return render_template("setup.html")
+
+
+@app.get("/pet-photo")
+def pet_photo():
+    for ext, mimetype in PHOTO_TYPES.items():
+        path = PHOTO_PATH + ext
+        if os.path.isfile(path):
+            return send_file(path, mimetype=mimetype, max_age=0)
+    abort(404)
 
 
 @app.get("/schedule")
@@ -795,7 +847,12 @@ def settings():
     db = get_db()
     user = get_user()
     pet = db.execute("SELECT * FROM pets WHERE id = 1").fetchone()
-    return render_template("settings.html", user=user, pet=pet)
+    return render_template(
+        "settings.html",
+        user=user,
+        pet=pet,
+        pet_photo_url=url_for("pet_photo") if has_pet_photo() else None,
+    )
 
 
 @app.post("/settings")
@@ -809,6 +866,8 @@ def update_settings():
     activity = (
         request.form.get("activity") if request.form.get("activity") in ACTIVITIES else "normal"
     )
+    if request.files.get("pet_photo") and not save_pet_photo(request.files["pet_photo"]):
+        flash("La foto no se pudo guardar. Usa JPG, PNG, GIF o WebP de hasta 2 MB.", "error")
     db = get_db()
     db.execute("UPDATE users SET name = ? WHERE id = 1", (user_name,))
     db.execute(
@@ -827,6 +886,7 @@ def reset_data():
     for table in ["logs", "meals", "water", "advice", "videos", "device", "membership", "pets", "users"]:
         db.execute(f"DELETE FROM {table}")
     db.commit()
+    delete_pet_photo()
     flash("Todos los datos han sido borrados.", "success")
     return redirect(url_for("setup"))
 
