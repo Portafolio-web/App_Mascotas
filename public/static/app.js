@@ -58,15 +58,45 @@
     }, 4200);
   });
 
+  function formatBytes(bytes) {
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1024 * 1024) return Math.round(bytes / 1024) + " KB";
+    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+  }
+
   document.querySelectorAll("input[type=file][name=pet_photo]").forEach(function (input) {
     var preview = document.getElementById(input.id + "_preview");
+    var placeholder = document.getElementById(input.id + "_placeholder");
+    var title = document.getElementById(input.id + "_label");
+    var hint = document.getElementById(input.id + "_name");
     if (!preview) return;
+
+    var defaultLabel = input.getAttribute("data-default-label") || "Elegir foto";
+    var defaultHint = input.getAttribute("data-default-hint") || "";
+    var currentPhoto = input.getAttribute("data-current-photo");
+
+    if (currentPhoto) {
+      preview.src = currentPhoto;
+      preview.hidden = false;
+      if (placeholder) placeholder.hidden = true;
+      if (title) title.textContent = "Foto actual";
+      if (hint) hint.textContent = "Toca para cambiar";
+    }
+
     input.addEventListener("change", function () {
       var file = input.files && input.files[0];
-      preview.hidden = true;
-      if (!file) return;
+      if (!file) {
+        preview.hidden = true;
+        if (placeholder) placeholder.hidden = false;
+        if (title) title.textContent = currentPhoto ? "Foto actual" : defaultLabel;
+        if (hint) hint.textContent = currentPhoto ? "Toca para cambiar" : defaultHint;
+        return;
+      }
       preview.src = URL.createObjectURL(file);
       preview.hidden = false;
+      if (placeholder) placeholder.hidden = true;
+      if (title) title.textContent = file.name;
+      if (hint) hint.textContent = formatBytes(file.size) + " · Toca para cambiar";
     });
   });
 

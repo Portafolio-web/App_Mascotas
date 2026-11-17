@@ -19,16 +19,21 @@
       <label for="pet_name">Nombre de la mascota</label>
       <input class="input" id="pet_name" name="pet_name" maxlength="40" required value="{{ pet['name'] }}">
     </div>
-    {% if pet_photo_url %}
-      <div class="photo-current">
-        <img src="{{ pet_photo_url }}" alt="Foto de {{ pet['name'] }}">
-        <small class="muted">Foto actual</small>
-      </div>
-    {% endif %}
     <div class="field">
-      <label for="pet_photo">Cambiar foto (opcional)</label>
-      <input class="input" id="pet_photo" name="pet_photo" type="file" accept="image/jpeg,image/png,image/gif,image/webp">
-      <img class="photo-preview" id="pet_photo_preview" alt="Vista previa" hidden>
+      <label>Foto de la mascota</label>
+      <label class="photo-upload" for="pet_photo">
+        <input class="photo-upload-input" id="pet_photo" name="pet_photo" type="file" accept="image/jpeg,image/png,image/gif,image/webp" data-default-label="Elegir foto" data-default-hint="JPG, PNG, GIF o WebP · máx. 2 MB" data-current-photo="{{ pet_photo_url or '' }}">
+        <span class="photo-upload-thumb">
+          <img class="photo-preview" id="pet_photo_preview" alt="Vista previa" hidden>
+          <span class="photo-upload-placeholder" id="pet_photo_placeholder">{{ icon('paw') }}</span>
+        </span>
+        <span class="photo-upload-copy">
+          <strong class="photo-upload-title" id="pet_photo_label">Elegir foto</strong>
+          <small class="muted" id="pet_photo_name">JPG, PNG, GIF o WebP · máx. 2 MB</small>
+        </span>
+        <span class="photo-upload-icon">{{ icon('edit') }}</span>
+      </label>
+      <small class="muted">Se guarda en el servidor mientras dure la sesión.</small>
     </div>
     <div class="field">
       <label>Tipo de mascota</label>
